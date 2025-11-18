@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Archivos Escaneados</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Sistema de Gestion de Archivos Escaneados</h1>
+            <p class="subtitle">Almacenamiento y gestion centralizada de documentos</p>
+        </header>
+
+        <div class="main-content">
+            <aside class="sidebar">
+                <div class="upload-section">
+                    <h2>Subir Archivo</h2>
+                    <form id="uploadForm" enctype="multipart/form-data">
+                        <div class="form-group">
+                            <label for="archivo">Seleccionar archivo:</label>
+                            <input type="file" id="archivo" name="archivo" required>
+                            <small>Maximo: 10MB | Formatos: PDF, DOC, XLS, IMG, ZIP</small>
+                        </div>
+
+                        <!-- Preview Container -->
+                        <div id="filePreviewContainer" class="file-preview-container" style="display: none;">
+                            <div class="preview-header">
+                                <span class="preview-title">Vista previa</span>
+                                <button type="button" class="preview-close" id="closePreview">&times;</button>
+                            </div>
+                            <div id="filePreview" class="file-preview"></div>
+                            <div class="preview-info">
+                                <span id="previewFileName"></span>
+                                <span id="previewFileSize"></span>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="categoria">Categoria:</label>
+                            <select id="categoria" name="categoria">
+                                <option value="general">General</option>
+                                <option value="facturas">Facturas</option>
+                                <option value="contratos">Contratos</option>
+                                <option value="documentos">Documentos</option>
+                                <option value="actas">Actas</option>
+                                <option value="recibos">Recibos</option>
+                                <option value="imagenes">Imagenes</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="descripcion">Descripcion:</label>
+                            <textarea id="descripcion" name="descripcion" rows="3" 
+                                      placeholder="Descripcion opcional del archivo"></textarea>
+                        </div>
+
+                        <button type="submit" class="btn-primary">
+                            <span id="uploadText">Subir Archivo</span>
+                            <span id="uploadLoader" class="loader" style="display: none;"></span>
+                        </button>
+                    </form>
+                </div>
+
+                <div class="stats-section">
+                    <h3>Estadisticas</h3>
+                    <div id="stats">
+                        <p>Total archivos: <strong id="totalArchivos">0</strong></p>
+                        <p>Espacio usado: <strong id="espacioTotal">0 MB</strong></p>
+                        <hr>
+                        <div id="categoriaStats"></div>
+                    </div>
+                </div>
+            </aside>
+
+            <main class="content">
+                <div class="toolbar">
+                    <div class="search-box">
+                        <input type="text" id="buscar" placeholder="Buscar archivos por nombre, descripcion o categoria...">
+                    </div>
+
+                    <div class="filters">
+                        <label>Filtrar:</label>
+                        <select id="filtroCategoria">
+                            <option value="todos">Todas las categorias</option>
+                            <option value="general">General</option>
+                            <option value="facturas">Facturas</option>
+                            <option value="contratos">Contratos</option>
+                            <option value="documentos">Documentos</option>
+                            <option value="actas">Actas</option>
+                            <option value="recibos">Recibos</option>
+                            <option value="imagenes">Imagenes</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div id="archivos-list" class="archivos-grid">
+                    <div class="loading">Cargando archivos...</div>
+                </div>
+
+                <div id="pagination" class="pagination"></div>
+            </main>
+        </div>
+    </div>
+
+    <div id="notification" class="notification"></div>
+
+    <script src="js/app.js"></script>
+</body>
+</html>
