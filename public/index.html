@@ -10,7 +10,7 @@
     <div class="container">
         <header>
             <h1>Sistema de Gestion de Archivos Escaneados</h1>
-            <p class="subtitle">Almacenamiento y gestion centralizada de documentos</p>
+            <p class="subtitle">Almacenamiento de documentos</p>
         </header>
 
         <div class="main-content">
@@ -24,7 +24,6 @@
                             <small>Maximo: 10MB | Formatos: PDF, DOC, XLS, IMG, ZIP</small>
                         </div>
 
-                        <!-- Preview Container -->
                         <div id="filePreviewContainer" class="file-preview-container" style="display: none;">
                             <div class="preview-header">
                                 <span class="preview-title">Vista previa</span>
@@ -39,15 +38,14 @@
 
                         <div class="form-group">
                             <label for="categoria">Categoria:</label>
-                            <select id="categoria" name="categoria">
-                                <option value="general">General</option>
-                                <option value="facturas">Facturas</option>
-                                <option value="contratos">Contratos</option>
-                                <option value="documentos">Documentos</option>
-                                <option value="actas">Actas</option>
-                                <option value="recibos">Recibos</option>
-                                <option value="imagenes">Imagenes</option>
-                            </select>
+                            <div class="categoria-input-group">
+                                <select id="categoria" name="categoria">
+                                    <option value="General">General</option>
+                                </select>
+                                <button type="button" class="btn-icon" id="btnGestionarCategorias" title="Gestionar categorias">
+                                    +
+                                </button>
+                            </div>
                         </div>
 
                         <div class="form-group">
@@ -84,13 +82,6 @@
                         <label>Filtrar:</label>
                         <select id="filtroCategoria">
                             <option value="todos">Todas las categorias</option>
-                            <option value="general">General</option>
-                            <option value="facturas">Facturas</option>
-                            <option value="contratos">Contratos</option>
-                            <option value="documentos">Documentos</option>
-                            <option value="actas">Actas</option>
-                            <option value="recibos">Recibos</option>
-                            <option value="imagenes">Imagenes</option>
                         </select>
                     </div>
                 </div>
@@ -101,6 +92,25 @@
 
                 <div id="pagination" class="pagination"></div>
             </main>
+        </div>
+    </div>
+
+    <!-- Modal para gestionar categorias -->
+    <div id="modalCategorias" class="modal-categorias" style="display: none;">
+        <div class="modal-content-categorias">
+            <div class="modal-header">
+                <h3>Gestionar Categorias</h3>
+                <button class="btn-close" id="closeCategorias">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="add-categoria">
+                    <input type="text" id="nuevaCategoria" placeholder="Nueva categoria...">
+                    <button class="btn-add" id="btnAgregarCategoria">Agregar</button>
+                </div>
+                <div class="lista-categorias" id="listaCategorias">
+                    <!-- Categorias dinamicas -->
+                </div>
+            </div>
         </div>
     </div>
 

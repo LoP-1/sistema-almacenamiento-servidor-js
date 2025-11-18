@@ -6,10 +6,13 @@ class ArchivoManager {
     this.currentCategory = 'todos';
     this.searchTimeout = null;
     this.currentFile = null;
+    this.categorias = ['General', 'Facturas', 'Contratos', 'Documentos', 'Actas', 'Recibos', 'Imagenes'];
     this.init();
   }
 
   init() {
+    this.cargarCategoriasDesdeLocalStorage();
+    this.actualizarSelectsCategorias();
     this.setupEventListeners();
     this.cargarArchivos();
     this.cargarEstadisticas();
@@ -41,6 +44,141 @@ class ArchivoManager {
     document.getElementById('closePreview').addEventListener('click', () => {
       this.clearPreview();
     });
+
+    document.getElementById('btnGestionarCategorias').addEventListener('click', () => {
+      this.abrirModalCategorias();
+    });
+
+    document.getElementById('closeCategorias').addEventListener('click', () => {
+      this.cerrarModalCategorias();
+    });
+
+    document.getElementById('btnAgregarCategoria').addEventListener('click', () => {
+      this.agregarCategoria();
+    });
+
+    document.getElementById('nuevaCategoria').addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
+        this.agregarCategoria();
+      }
+    });
+  }
+
+  cargarCategoriasDesdeLocalStorage() {
+    const saved = localStorage.getItem('categorias');
+    if (saved) {
+      try {
+        this.categorias = JSON.parse(saved);
+      } catch (e) {
+        console.error('Error al cargar categorias:', e);
+      }
+    }
+  }
+
+  guardarCategoriasEnLocalStorage() {
+    localStorage.setItem('categorias', JSON.stringify(this.categorias));
+  }
+
+  actualizarSelectsCategorias() {
+    const selectCategoria = document.getElementById('categoria');
+    const selectFiltro = document.getElementById('filtroCategoria');
+    
+    selectCategoria.innerHTML = this.categorias.map(cat => 
+      `<option value="${cat}">${cat}</option>`
+    ).join('');
+    
+    selectFiltro.innerHTML = '<option value="todos">Todas las categorias</option>' + 
+      this.categorias.map(cat => 
+        `<option value="${cat.toLowerCase()}">${cat}</option>`
+      ).join('');
+  }
+
+  abrirModalCategorias() {
+    const modal = document.getElementById('modalCategorias');
+    modal.style.display = 'flex';
+    this.renderizarListaCategorias();
+  }
+
+  cerrarModalCategorias() {
+    const modal = document.getElementById('modalCategorias');
+    modal.style.display = 'none';
+    document.getElementById('nuevaCategoria').value = '';
+  }
+
+  agregarCategoria() {
+    const input = document.getElementById('nuevaCategoria');
+    const categoria = input.value.trim();
+    
+    if (!categoria) {
+      this.mostrarNotificacion('Por favor ingresa un nombre de categoria', 'error');
+      return;
+    }
+
+    const categoriaCapitalizada = categoria.charAt(0).toUpperCase() + categoria.slice(1);
+    
+    if (this.categorias.some(c => c.toLowerCase() === categoriaCapitalizada.toLowerCase())) {
+      this.mostrarNotificacion('Esta categoria ya existe', 'error');
+      return;
+    }
+
+    this.categorias.push(categoriaCapitalizada);
+    this.guardarCategoriasEnLocalStorage();
+    this.actualizarSelectsCategorias();
+    this.renderizarListaCategorias();
+    input.value = '';
+    this.mostrarNotificacion('Categoria agregada correctamente', 'success');
+  }
+
+  eliminarCategoria(categoria) {
+    if (categoria.toLowerCase() === 'general') {
+      this.mostrarNotificacion('No se puede eliminar la categoria General', 'error');
+      return;
+    }
+
+    if (!confirm(`Seguro que deseas eliminar la categoria "${categoria}"?`)) {
+      return;
+    }
+
+    this.categorias = this.categorias.filter(c => c !== categoria);
+    this.guardarCategoriasEnLocalStorage();
+    this.actualizarSelectsCategorias();
+    this.renderizarListaCategorias();
+    this.mostrarNotificacion('Categoria eliminada', 'success');
+  }
+
+  async renderizarListaCategorias() {
+    const container = document.getElementById('listaCategorias');
+    
+    const response = await fetch(`${this.apiUrl}/estadisticas`).catch(() => null);
+    let stats = { por_categoria: [] };
+    
+    if (response && response.ok) {
+      stats = await response.json();
+    }
+
+    container.innerHTML = this.categorias.map(cat => {
+      const catStats = stats.por_categoria.find(s => 
+        s.categoria.toLowerCase() === cat.toLowerCase()
+      );
+      const count = catStats ? catStats.cantidad : 0;
+      const isDefault = cat.toLowerCase() === 'general';
+      
+      return `
+        <div class="categoria-item ${isDefault ? 'default' : ''}">
+          <div>
+            <span class="categoria-nombre">${cat}</span>
+            <span class="categoria-count">(${count} archivos)</span>
+          </div>
+          <button 
+            class="btn-delete-categoria" 
+            onclick="app.eliminarCategoria('${cat}')"
+            ${isDefault ? 'disabled' : ''}
+          >
+            ${isDefault ? 'Por Defecto' : 'Eliminar'}
+          </button>
+        </div>
+      `;
+    }).join('');
   }
 
   handleFileSelect(event) {
